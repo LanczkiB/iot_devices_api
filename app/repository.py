@@ -1,20 +1,9 @@
 import csv
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-
-@dataclass(frozen=True)
-class Reading:
-    device_id: int
-    measure_time: datetime
-    temperature: float
-    humidity: float | None
-
-
-def fahrenheit_to_celsius(value: float) -> float:
-    return (value - 32) * 5 / 9
-
+from app.models import Reading
+from app.units import fahrenheit_to_celsius
 
 class ReadingRepository:
     def __init__(self, path: Path):

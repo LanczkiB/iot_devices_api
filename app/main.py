@@ -4,7 +4,8 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, Request
 
-from app.repository import Reading, ReadingRepository
+from app.models import Reading
+from app.repository import ReadingRepository
 
 DATA_PATH = Path(os.getenv("DATA_PATH", "data/readings.csv"))
 

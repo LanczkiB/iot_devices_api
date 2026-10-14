@@ -2,7 +2,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from app.repository import Reading, ReadingRepository
+from app.models import Reading
+from app.repository import ReadingRepository
 
 HEADER = "DeviceId,MeasureTime,Temperature,TempUnit,Humidity\n"
 
