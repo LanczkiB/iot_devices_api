@@ -7,6 +7,15 @@ from app.units import celsius_to_fahrenheit
 
 AGGREGATIONS = {Statistic.MIN: min, Statistic.MAX: max, Statistic.AVG: mean}
 
+class UnknownDeviceError(Exception):
+    def __init__(self, device_ids: list[int]):
+        self.device_ids = device_ids
+        super().__init__(f"Unknown device id(s): {device_ids}")
+
+
+class InvalidQueryError(Exception):
+    pass
+
 def compute_statistics(
     readings: list[Reading],
     metrics: list[Metric],
@@ -22,7 +31,8 @@ def compute_statistics(
     start and end must be timezone-aware.
     """
     if start and end and start >= end:
-        #todo
+        raise InvalidQueryError("start must be before end")
+    
     readings_by_device = _group_by_device(readings)
     selected_ids = _select_devices(readings_by_device, device_ids)
 
@@ -58,7 +68,7 @@ def _select_devices(readings_by_device: dict[int, list[Reading]], device_ids: li
         return sorted(readings_by_device)
     unknown = sorted(set(device_ids) - readings_by_device.keys())
     if unknown:
-        #todo
+        raise UnknownDeviceError(unknown)
     return sorted(set(device_ids))
 
 

@@ -40,3 +40,8 @@ class DeviceStatistics:
     period_start: datetime | None
     period_end: datetime | None
     metrics: dict[Metric, MetricResult]
+
+@dataclass(frozen=True)
+class StatsResponse:
+    statistic: Statistic
+    results: list[DeviceStatistics]
