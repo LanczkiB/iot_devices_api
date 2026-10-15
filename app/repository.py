@@ -32,10 +32,14 @@ def _parse_row(row: dict[str, str]) -> Reading:
     if measure_time.tzinfo is None:
         measure_time = measure_time.replace(tzinfo=timezone.utc)
 
-    humidity = row["Humidity"].strip()
+    humidity_text = row["Humidity"].strip()
+    humidity = float(humidity_text) if humidity_text else None
+    if humidity is not None and not 0 <= humidity <= 100:
+        raise ValueError(f"humidity {humidity} is outside 0-100%")
+
     return Reading(
         device_id=int(row["DeviceId"]),
         measure_time=measure_time,
         temperature=temperature,
-        humidity=float(humidity) if humidity else None,
+        humidity=humidity,
     )
