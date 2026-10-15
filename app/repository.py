@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from app.models import Reading
@@ -28,10 +28,14 @@ def _parse_row(row: dict[str, str]) -> Reading:
     elif unit != "C":
         raise ValueError(f"unknown temperature unit '{unit}'")
 
+    measure_time = datetime.fromisoformat(row["MeasureTime"])
+    if measure_time.tzinfo is None:
+        measure_time = measure_time.replace(tzinfo=timezone.utc)
+
     humidity = row["Humidity"].strip()
     return Reading(
         device_id=int(row["DeviceId"]),
-        measure_time=datetime.fromisoformat(row["MeasureTime"]),
+        measure_time=measure_time,
         temperature=temperature,
         humidity=float(humidity) if humidity else None,
     )

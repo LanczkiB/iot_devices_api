@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, Query, Request
 from fastapi.responses import JSONResponse
@@ -11,7 +11,8 @@ from app.models import Metric, Statistic, StatsResponse, TemperatureUnit
 from app.repository import ReadingRepository
 from app.service import InvalidQueryError, UnknownDeviceError, compute_statistics
 
-DATA_PATH = Path(os.getenv("DATA_PATH", "data/readings.csv"))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PATH = Path(os.getenv("DATA_PATH", PROJECT_ROOT / "data" / "readings.csv"))
 
 
 @asynccontextmanager
@@ -25,14 +26,22 @@ def get_repository(request: Request) -> ReadingRepository:
     return request.app.state.repository
 
 
+def _error(status_code: int, error_type: str, loc: list[str], msg: str, input: Any = None) -> JSONResponse:
+    # Same shape as FastAPI's request validation errors, so clients handle one format.
+    error = {"type": error_type, "loc": loc, "msg": msg}
+    if input is not None:
+        error["input"] = input
+    return JSONResponse(status_code=status_code, content={"detail": [error]})
+
+
 @app.exception_handler(UnknownDeviceError)
 async def unknown_device_handler(request: Request, error: UnknownDeviceError) -> JSONResponse:
-    return JSONResponse(status_code=404, content={"detail": str(error)})
+    return _error(404, "unknown_device", ["query", "device_ids"], str(error), input=error.device_ids)
 
 
 @app.exception_handler(InvalidQueryError)
 async def invalid_query_handler(request: Request, error: InvalidQueryError) -> JSONResponse:
-    return JSONResponse(status_code=422, content={"detail": str(error)})
+    return _error(422, "invalid_query", ["query"], str(error))
 
 
 @app.get("/stats")

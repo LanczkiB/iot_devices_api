@@ -27,6 +27,12 @@ def test_parses_celsius_row(tmp_path):
     ]
 
 
+def test_timestamp_without_timezone_is_treated_as_utc(tmp_path):
+    readings = load(tmp_path, "1,2026-07-10T10:00:00,23,C,42")
+
+    assert readings[0].measure_time == datetime(2026, 7, 10, 10, 0, tzinfo=timezone.utc)
+
+
 def test_converts_fahrenheit_to_celsius(tmp_path):
     readings = load(tmp_path, "2,2026-07-10T10:00:00Z,77,F,")
 

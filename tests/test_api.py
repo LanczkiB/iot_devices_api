@@ -66,7 +66,11 @@ def test_unknown_device_returns_404(client):
     response = client.get("/stats", params={"metrics": "temperature", "device_ids": [1, 9]})
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Unknown device id(s): [9]"}
+    assert response.json() == {
+        "detail": [
+            {"type": "unknown_device", "loc": ["query", "device_ids"], "msg": "Unknown device id(s): [9]", "input": [9]}
+        ]
+    }
 
 
 def test_start_not_before_end_returns_422(client):
@@ -76,7 +80,9 @@ def test_start_not_before_end_returns_422(client):
     )
 
     assert response.status_code == 422
-    assert response.json() == {"detail": "start must be before end"}
+    assert response.json() == {
+        "detail": [{"type": "invalid_query", "loc": ["query"], "msg": "start must be before end"}]
+    }
 
 
 @pytest.mark.parametrize(
