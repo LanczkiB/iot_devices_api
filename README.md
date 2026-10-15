@@ -195,9 +195,7 @@ The service also checks two things:
 
 ### Why `metrics` is required
 
-The task does not define a default metric.
-I made `metrics` required, so the client always says explicitly what it wants.
-Also `metrics` is the only part of the assignment where `not specified` option is not mentioned so I chose to make it required.
+`metrics` is the only part of the assignment where `not specified` option is not mentioned so I chose to make it required. Another solution would be to make both metrics the default.
 
 ## Limitations and possible improvements
 
